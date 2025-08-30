@@ -1,0 +1,47 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-9892d8da6156cdbd1d08c66c200a8b847735297a",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/ConfioLedger.sol": "project/contracts/ConfioLedger.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": [
+        "project/:@openzeppelin/contracts/=npm/@openzeppelin/contracts@5.4.0/"
+      ]
+    },
+    "sources": {
+      "npm/@openzeppelin/contracts@5.4.0/access/Ownable.sol": {
+        "content": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\n\npragma solidity ^0.8.20;\n\nimport {Context} from \"../utils/Context.sol\";\n\n/**\n * @dev Contract module which provides a basic access control mechanism, where\n * there is an account (an owner) that can be granted exclusive access to\n * specific functions.\n *\n * The initial owner is set to the address provided by the deployer. This can\n * later be changed with {transferOwnership}.\n *\n * This module is used through inheritance. It will make available the modifier\n * `onlyOwner`, which can be applied to your functions to restrict their use to\n * the owner.\n */\nabstract contract Ownable is Context {\n    address private _owner;\n\n    /**\n     * @dev The caller account is not authorized to perform an operation.\n     */\n    error OwnableUnauthorizedAccount(address account);\n\n    /**\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\n     */\n    error OwnableInvalidOwner(address owner);\n\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\n\n    /**\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\n     */\n    constructor(address initialOwner) {\n        if (initialOwner == address(0)) {\n            revert OwnableInvalidOwner(address(0));\n        }\n        _transferOwnership(initialOwner);\n    }\n\n    /**\n     * @dev Throws if called by any account other than the owner.\n     */\n    modifier onlyOwner() {\n        _checkOwner();\n        _;\n    }\n\n    /**\n     * @dev Returns the address of the current owner.\n     */\n    function owner() public view virtual returns (address) {\n        return _owner;\n    }\n\n    /**\n     * @dev Throws if the sender is not the owner.\n     */\n    function _checkOwner() internal view virtual {\n        if (owner() != _msgSender()) {\n            revert OwnableUnauthorizedAccount(_msgSender());\n        }\n    }\n\n    /**\n     * @dev Leaves the contract without owner. It will not be possible to call\n     * `onlyOwner` functions. Can only be called by the current owner.\n     *\n     * NOTE: Renouncing ownership will leave the contract without an owner,\n     * thereby disabling any functionality that is only available to the owner.\n     */\n    function renounceOwnership() public virtual onlyOwner {\n        _transferOwnership(address(0));\n    }\n\n    /**\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\n     * Can only be called by the current owner.\n     */\n    function transferOwnership(address newOwner) public virtual onlyOwner {\n        if (newOwner == address(0)) {\n            revert OwnableInvalidOwner(address(0));\n        }\n        _transferOwnership(newOwner);\n    }\n\n    /**\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\n     * Internal function without access restriction.\n     */\n    function _transferOwnership(address newOwner) internal virtual {\n        address oldOwner = _owner;\n        _owner = newOwner;\n        emit OwnershipTransferred(oldOwner, newOwner);\n    }\n}\n"
+      },
+      "npm/@openzeppelin/contracts@5.4.0/utils/Context.sol": {
+        "content": "// SPDX-License-Identifier: MIT\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\n\npragma solidity ^0.8.20;\n\n/**\n * @dev Provides information about the current execution context, including the\n * sender of the transaction and its data. While these are generally available\n * via msg.sender and msg.data, they should not be accessed in such a direct\n * manner, since when dealing with meta-transactions the account sending and\n * paying for execution may not be the actual sender (as far as an application\n * is concerned).\n *\n * This contract is only required for intermediate, library-like contracts.\n */\nabstract contract Context {\n    function _msgSender() internal view virtual returns (address) {\n        return msg.sender;\n    }\n\n    function _msgData() internal view virtual returns (bytes calldata) {\n        return msg.data;\n    }\n\n    function _contextSuffixLength() internal view virtual returns (uint256) {\n        return 0;\n    }\n}\n"
+      },
+      "project/contracts/ConfioLedger.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/access/Ownable.sol\";\n\n/**\n * @title ConfioLedger\n * @dev A secure contract for anchoring daily Merkle roots of user transactions\n * @notice This contract allows only the owner (backend) to anchor transaction batches,\n *         making the application gasless for end users while maintaining transparency\n */\ncontract ConfioLedger is Ownable {\n    /**\n     * @dev Emitted when a daily Merkle root is anchored\n     * @param merkleRoot The Merkle root hash of the transaction batch\n     * @param timestamp The block timestamp when the anchor was created\n     * @param batchId Sequential ID for the batch (starts from 1)\n     */\n    event AnchorUpdated(\n        bytes32 indexed merkleRoot,\n        uint256 indexed timestamp,\n        uint256 indexed batchId\n    );\n\n    /// @dev Counter for batch IDs\n    uint256 private _batchCounter;\n\n    /// @dev Mapping to store anchored roots with their timestamps\n    mapping(bytes32 => uint256) public anchoredRoots;\n\n    /// @dev Mapping to store batch information\n    mapping(uint256 => bytes32) public batchRoots;\n\n    /**\n     * @dev Constructor that sets the deployer as the initial owner\n     * @param initialOwner The address that will own the contract\n     */\n    constructor(address initialOwner) Ownable(initialOwner) {\n        _batchCounter = 0;\n    }\n\n    /**\n     * @dev Anchors a daily Merkle root of user transactions\n     * @param merkleRoot The Merkle root hash to anchor\n     * @notice Only the owner (backend) can call this function\n     * @notice Prevents duplicate roots from being anchored\n     */\n    function anchorDailyRoot(bytes32 merkleRoot) external onlyOwner {\n        require(merkleRoot != bytes32(0), \"ConfioLedger: Merkle root cannot be zero\");\n        require(anchoredRoots[merkleRoot] == 0, \"ConfioLedger: Root already anchored\");\n\n        _batchCounter++;\n        uint256 timestamp = block.timestamp;\n\n        // Store the anchored root with its timestamp\n        anchoredRoots[merkleRoot] = timestamp;\n        batchRoots[_batchCounter] = merkleRoot;\n\n        emit AnchorUpdated(merkleRoot, timestamp, _batchCounter);\n    }\n\n    /**\n     * @dev Returns the current batch counter\n     * @return The number of batches anchored so far\n     */\n    function getBatchCounter() external view returns (uint256) {\n        return _batchCounter;\n    }\n\n    /**\n     * @dev Checks if a Merkle root has been anchored\n     * @param merkleRoot The Merkle root to check\n     * @return timestamp The timestamp when it was anchored (0 if not anchored)\n     */\n    function isRootAnchored(bytes32 merkleRoot) external view returns (uint256) {\n        return anchoredRoots[merkleRoot];\n    }\n\n    /**\n     * @dev Gets the Merkle root for a specific batch ID\n     * @param batchId The batch ID to query\n     * @return The Merkle root for that batch\n     */\n    function getBatchRoot(uint256 batchId) external view returns (bytes32) {\n        require(batchId > 0 && batchId <= _batchCounter, \"ConfioLedger: Invalid batch ID\");\n        return batchRoots[batchId];\n    }\n}\n"
+      }
+    }
+  }
+}

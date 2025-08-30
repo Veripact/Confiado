@@ -1,57 +1,75 @@
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+# ConfioLedger Smart Contract
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+A secure blockchain infrastructure for anchoring Merkle roots of user transaction batches, enabling gasless operations for end users while maintaining transparency and immutability.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## Overview
 
-## Project Overview
+ConfioLedger is a smart contract built with OpenZeppelin's security standards that allows only authorized backend services to anchor daily transaction batches as Merkle roots. This architecture ensures users can interact with the application without paying gas fees while maintaining cryptographic proof of all transactions.
 
-This example project includes:
+## Features
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+- **Gasless Architecture**: Only the contract owner (backend) pays gas fees
+- **Merkle Root Anchoring**: Secure batch anchoring with timestamp tracking
+- **Duplicate Prevention**: Built-in protection against duplicate root submissions
+- **Batch Tracking**: Sequential batch IDs for easy querying and verification
+- **OpenZeppelin Security**: Leverages battle-tested Ownable access control
+- **Event Emission**: Transparent logging of all anchor operations
 
-## Usage
+## Deployed Contracts
 
-### Running Tests
+- **Lisk Sepolia Testnet**: `0xa546508e1969224987BB37d1C52E86686b7f0C1C`
 
-To run all the tests in the project, execute the following command:
+## Quick Start
 
-```shell
+### Install Dependencies
+
+```bash
+npm install
+```
+
+### Configure Environment
+
+Copy the `.env.example` file to `.env` and configure your private key:
+
+```bash
+# Lisk Network Configuration
+PRIVATE_KEY=your_private_key_here
+LISK_MAINNET_RPC_URL=https://rpc.api.lisk.com
+LISK_SEPOLIA_RPC_URL=https://rpc.sepolia-api.lisk.com
+```
+
+### Run Tests
+
+```bash
 npx hardhat test
 ```
 
-You can also selectively run the Solidity or `node:test` tests:
+### Deploy to Lisk Networks
 
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
+```bash
+# Deploy to Lisk Sepolia Testnet
+npx hardhat ignition deploy ignition/modules/ConfioLedger.ts --network liskSepolia
+
+# Deploy to Lisk Mainnet
+npx hardhat ignition deploy ignition/modules/ConfioLedger.ts --network liskMainnet
 ```
 
-### Make a deployment to Sepolia
+## Contract Interface
 
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+### Core Functions
 
-To run the deployment to a local chain:
+- `anchorDailyRoot(bytes32 merkleRoot)`: Anchor a new Merkle root (owner only)
+- `getBatchCounter()`: Get the total number of anchored batches
+- `isRootAnchored(bytes32 merkleRoot)`: Check if a root has been anchored
+- `getBatchRoot(uint256 batchId)`: Get the Merkle root for a specific batch
 
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
-```
+### Events
 
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+- `AnchorUpdated(bytes32 indexed merkleRoot, uint256 indexed timestamp, uint256 indexed batchId)`: Emitted when a new root is anchored
 
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
+## Security
 
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+- Built with OpenZeppelin contracts for proven security
+- Comprehensive test suite with 21 test cases including fuzz testing
+- Access control via Ownable pattern
+- Input validation and duplicate prevention
