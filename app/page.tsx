@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useWeb3Auth } from "@/contexts/Web3AuthContext";
+import { usePrivyAuth } from "@/contexts/PrivyContext";
 import { Button } from "@/components/ui/button";
 import { Plus, BarChart3 } from "lucide-react";
 
 export default function HomePage() {
-  const { isLoggedIn, isLoading, login, user, account } = useWeb3Auth();
+  const { isLoggedIn, isLoading, login, user, account } = usePrivyAuth();
   const router = useRouter();
 
   useEffect(() => {

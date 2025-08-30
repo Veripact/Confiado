@@ -15,12 +15,12 @@ import { Plus, Settings, User, Wallet, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
-import { useWeb3Auth } from "@/contexts/Web3AuthContext"
+import { usePrivyAuth } from "@/contexts/PrivyContext"
 
 export function DashboardHeader() {
   const { currentUser, viewMode, setViewMode } = useAppStore()
   const router = useRouter()
-  const { logout, user, account, balance, isLoggedIn } = useWeb3Auth()
+  const { logout, user, account, balance, isLoggedIn } = usePrivyAuth()
 
   const handleLogout = async () => {
     try {
