@@ -1,0 +1,226 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "ConfioLedger",
+  "sourceName": "contracts/ConfioLedger.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialOwner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "batchId",
+          "type": "uint256"
+        }
+      ],
+      "name": "AnchorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchorDailyRoot",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchoredRoots",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "batchRoots",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBatchCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "batchId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBatchRoot",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "merkleRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "isRootAnchored",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x6080604052348015600e575f5ffd5b50604051610572380380610572833981016040819052602b9160b8565b806001600160a01b038116605857604051631e4fbdf760e01b81525f600482015260240160405180910390fd5b605f816069565b50505f60015560e3565b5f80546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b5f6020828403121560c7575f5ffd5b81516001600160a01b038116811460dc575f5ffd5b9392505050565b610482806100f05f395ff3fe608060405234801561000f575f5ffd5b5060043610610090575f3560e01c80638da5cb5b116100635780638da5cb5b146100f7578063ce993b8c14610111578063e2350d6314610130578063e6a1501b14610143578063f2fde38b14610156575f5ffd5b80630948a03f1461009457806368e2f979146100c6578063715018a6146100e55780638cf55bab146100ef575b5f5ffd5b6100b36100a23660046103e4565b5f9081526002602052604090205490565b6040519081526020015b60405180910390f35b6100b36100d43660046103e4565b60036020525f908152604090205481565b6100ed610169565b005b6001546100b3565b5f546040516001600160a01b0390911681526020016100bd565b6100b361011f3660046103e4565b60026020525f908152604090205481565b6100b361013e3660046103e4565b61017c565b6100ed6101513660046103e4565b6101f1565b6100ed6101643660046103fb565b61032c565b610171610369565b61017a5f610395565b565b5f5f8211801561018e57506001548211155b6101df5760405162461bcd60e51b815260206004820152601e60248201527f436f6e66696f4c65646765723a20496e76616c6964206261746368204944000060448201526064015b60405180910390fd5b505f9081526003602052604090205490565b6101f9610369565b806102575760405162461bcd60e51b815260206004820152602860248201527f436f6e66696f4c65646765723a204d65726b6c6520726f6f742063616e6e6f74604482015267206265207a65726f60c01b60648201526084016101d6565b5f81815260026020526040902054156102be5760405162461bcd60e51b815260206004820152602360248201527f436f6e66696f4c65646765723a20526f6f7420616c726561647920616e63686f6044820152621c995960ea1b60648201526084016101d6565b60018054905f6102cd83610428565b90915550505f818152600260209081526040808320429081905560018054855260039093528184208590559154905191929091839185917f1394a08d0ccb561f3a585cbaf73f963d35bf813bd10efe54d5414d579dbde9639190a45050565b610334610369565b6001600160a01b03811661035d57604051631e4fbdf760e01b81525f60048201526024016101d6565b61036681610395565b50565b5f546001600160a01b0316331461017a5760405163118cdaa760e01b81523360048201526024016101d6565b5f80546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b5f602082840312156103f4575f5ffd5b5035919050565b5f6020828403121561040b575f5ffd5b81356001600160a01b0381168114610421575f5ffd5b9392505050565b5f6001820161044557634e487b7160e01b5f52601160045260245ffd5b506001019056fea2646970667358221220672f1919cc7a199ee9a230a62f2bf6bc504d67f5c31002abeefa05ff60ca8c6a64736f6c634300081c0033",
+  "deployedBytecode": "0x608060405234801561000f575f5ffd5b5060043610610090575f3560e01c80638da5cb5b116100635780638da5cb5b146100f7578063ce993b8c14610111578063e2350d6314610130578063e6a1501b14610143578063f2fde38b14610156575f5ffd5b80630948a03f1461009457806368e2f979146100c6578063715018a6146100e55780638cf55bab146100ef575b5f5ffd5b6100b36100a23660046103e4565b5f9081526002602052604090205490565b6040519081526020015b60405180910390f35b6100b36100d43660046103e4565b60036020525f908152604090205481565b6100ed610169565b005b6001546100b3565b5f546040516001600160a01b0390911681526020016100bd565b6100b361011f3660046103e4565b60026020525f908152604090205481565b6100b361013e3660046103e4565b61017c565b6100ed6101513660046103e4565b6101f1565b6100ed6101643660046103fb565b61032c565b610171610369565b61017a5f610395565b565b5f5f8211801561018e57506001548211155b6101df5760405162461bcd60e51b815260206004820152601e60248201527f436f6e66696f4c65646765723a20496e76616c6964206261746368204944000060448201526064015b60405180910390fd5b505f9081526003602052604090205490565b6101f9610369565b806102575760405162461bcd60e51b815260206004820152602860248201527f436f6e66696f4c65646765723a204d65726b6c6520726f6f742063616e6e6f74604482015267206265207a65726f60c01b60648201526084016101d6565b5f81815260026020526040902054156102be5760405162461bcd60e51b815260206004820152602360248201527f436f6e66696f4c65646765723a20526f6f7420616c726561647920616e63686f6044820152621c995960ea1b60648201526084016101d6565b60018054905f6102cd83610428565b90915550505f818152600260209081526040808320429081905560018054855260039093528184208590559154905191929091839185917f1394a08d0ccb561f3a585cbaf73f963d35bf813bd10efe54d5414d579dbde9639190a45050565b610334610369565b6001600160a01b03811661035d57604051631e4fbdf760e01b81525f60048201526024016101d6565b61036681610395565b50565b5f546001600160a01b0316331461017a5760405163118cdaa760e01b81523360048201526024016101d6565b5f80546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b5f602082840312156103f4575f5ffd5b5035919050565b5f6020828403121561040b575f5ffd5b81356001600160a01b0381168114610421575f5ffd5b9392505050565b5f6001820161044557634e487b7160e01b5f52601160045260245ffd5b506001019056fea2646970667358221220672f1919cc7a199ee9a230a62f2bf6bc504d67f5c31002abeefa05ff60ca8c6a64736f6c634300081c0033",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/ConfioLedger.sol",
+  "buildInfoId": "solc-0_8_28-9892d8da6156cdbd1d08c66c200a8b847735297a"
+}
