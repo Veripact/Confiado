@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, TrendingUp, Clock } from "lucide-react"
 import { useAppStore } from "@/lib/store"
