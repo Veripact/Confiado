@@ -11,14 +11,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Settings, User } from "lucide-react"
+import { Plus, Settings, User, Wallet, LogOut } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
+import { useWeb3Auth } from "@/contexts/Web3AuthContext"
 
 export function DashboardHeader() {
   const { currentUser, viewMode, setViewMode } = useAppStore()
   const router = useRouter()
+  const { logout, user, account, balance, isLoggedIn } = useWeb3Auth()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push("/")
+    } catch (error) {
+      console.error("Logout failed:", error)
+      // Fallback: redirect anyway
+      router.push("/")
+    }
+  }
+
+  // Format account address for display
+  const formatAddress = (address: string) => {
+    if (!address) return ""
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
 
   return (
     <header className="border-b bg-card">
@@ -47,6 +66,17 @@ export function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Wallet Info */}
+            {isLoggedIn && account && (
+              <div className="hidden md:flex items-center gap-2 bg-muted px-3 py-2 rounded-lg">
+                <Wallet className="w-4 h-4 text-purple-600" />
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium">{formatAddress(account)}</span>
+                  <span className="text-xs text-muted-foreground">{parseFloat(balance).toFixed(4)} ETH</span>
+                </div>
+              </div>
+            )}
+
             {viewMode === "creditor" && (
               <Button asChild size="sm" className="hidden sm:flex">
                 <Link href="/debt/create">
@@ -60,25 +90,28 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={currentUser.avatar || "/placeholder.svg"} alt={currentUser.name} />
+                    <AvatarImage src={user?.profileImage || "/placeholder.svg"} alt={user?.name || "User"} />
                     <AvatarFallback>
-                      {currentUser.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                      {user?.name ? user.name.split(" ").map((n: string) => n[0]).join("") : "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-64" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{currentUser.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
-                    {currentUser.ensLabel && (
-                      <Badge variant="outline" className="text-xs w-fit">
-                        {currentUser.ensLabel}
-                      </Badge>
+                    <p className="text-sm font-medium leading-none">{user?.name || "Anonymous User"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email || "No email"}</p>
+                    {account && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className="text-xs">
+                          <Wallet className="w-3 h-3 mr-1" />
+                          {formatAddress(account)}
+                        </Badge>
+                      </div>
+                    )}
+                    {balance && (
+                      <p className="text-xs text-muted-foreground">Balance: {parseFloat(balance).toFixed(4)} ETH</p>
                     )}
                   </div>
                 </DropdownMenuLabel>
@@ -119,7 +152,10 @@ export function DashboardHeader() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/auth/signin")}>Sign out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
