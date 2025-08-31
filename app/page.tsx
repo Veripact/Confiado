@@ -28,51 +28,25 @@ export default function LandingPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400">
-        <p className="text-lg text-white">Cargando...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-lg text-gray-600">Cargando...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400 relative overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-10">
-        <div className="w-6 h-6 bg-white rounded-full opacity-80"></div>
-      </div>
-      <div className="absolute top-32 left-20">
-        <div className="w-4 h-4 bg-white rounded-full opacity-60"></div>
-      </div>
-      <div className="absolute top-16 right-16">
-        <div className="w-8 h-8 bg-white rounded-full opacity-70"></div>
-      </div>
-      <div className="absolute bottom-20 left-16">
-        <div className="w-5 h-5 bg-white rounded-full opacity-50"></div>
-      </div>
-
-      {/* Palm Tree Illustration */}
-      <div className="absolute right-0 top-1/4 opacity-30">
-        <svg width="200" height="300" viewBox="0 0 200 300" className="text-green-800">
-          <path d="M100 250 Q95 200 90 150 Q85 100 100 50" stroke="currentColor" strokeWidth="8" fill="none"/>
-          <ellipse cx="100" cy="40" rx="30" ry="15" fill="currentColor"/>
-          <ellipse cx="80" cy="50" rx="25" ry="12" fill="currentColor"/>
-          <ellipse cx="120" cy="50" rx="25" ry="12" fill="currentColor"/>
-          <ellipse cx="70" cy="65" rx="20" ry="10" fill="currentColor"/>
-          <ellipse cx="130" cy="65" rx="20" ry="10" fill="currentColor"/>
-        </svg>
-      </div>
-
+    <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-10 p-6">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="text-2xl font-bold text-white">CONFIADO</div>
+      <header className="border-b border-gray-200">
+        <div className="container mx-auto flex justify-between items-center p-4">
+          <div className="flex items-center space-x-2">
+            <div className="text-xl font-bold text-gray-900">CONFIADO</div>
           </div>
           
           <Button
             onClick={handleConnect}
             disabled={connectLoading}
-            className="bg-black text-white hover:bg-gray-800 px-6 py-3 rounded-full font-medium"
+            className="bg-gray-900 text-white hover:bg-gray-700 px-5 py-2 rounded-md font-medium"
           >
             {connectLoading ? "Conectando..." : "Connect"}
           </Button>
@@ -80,76 +54,61 @@ export default function LandingPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 pt-32 pb-12 relative z-5">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+      <main className="container mx-auto px-4 py-16 sm:py-24">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Side - Content */}
           <div className="text-left">
-            <h1 className="text-6xl md:text-7xl font-black text-black mb-6 leading-none">
-              MANAGE & TRACK
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+              Manage & Track Debts,
               <br />
-              <span className="text-black">DEBTS,</span>
-              <br />
-              <span className="text-black">WITH ONE</span>
-              <br />
-              <span className="text-black">CLICK.</span>
+              <span className="text-blue-600">With One Click</span>
             </h1>
             
-            <p className="text-lg text-black/80 mb-8 max-w-md">
-              Track your debts and credits securely on blockchain. 
-              Fast, transparent and decentralized debt management.
+            <p className="text-lg text-gray-600 mb-8 max-w-lg">
+              Track your debts and credits securely on the blockchain. Fast, transparent, and decentralized debt management to build your trust profile.
             </p>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <Button
                 onClick={handleConnect}
                 disabled={connectLoading}
                 size="lg"
-                className="bg-black text-white hover:bg-gray-800 px-8 py-4 rounded-full text-lg font-medium w-fit"
+                className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-3 rounded-md text-lg font-semibold w-full sm:w-auto"
               >
-                {connectLoading ? "Connecting..." : "Register"}
+                {connectLoading ? "Connecting..." : "Secure My Pacts"}
               </Button>
               
-              <p className="text-sm text-black/60">
-                Connect your wallet to start
+              <p className="text-sm text-gray-500">
+                Connect your wallet to get started.
               </p>
             </div>
           </div>
 
           {/* Right Side - Illustration */}
-          <div className="relative">
-            {/* City Illustration */}
-            <div className="relative">
-              <svg viewBox="0 0 400 300" className="w-full h-auto">
-                {/* Buildings */}
-                <rect x="50" y="150" width="40" height="100" fill="#FF6B6B" rx="4"/>
-                <rect x="100" y="120" width="35" height="130" fill="#4ECDC4" rx="4"/>
-                <rect x="145" y="140" width="45" height="110" fill="#45B7D1" rx="4"/>
-                <rect x="200" y="100" width="40" height="150" fill="#96CEB4" rx="4"/>
-                <rect x="250" y="130" width="38" height="120" fill="#FFEAA7" rx="4"/>
-                <rect x="300" y="110" width="42" height="140" fill="#DDA0DD" rx="4"/>
-                
-                {/* Windows */}
-                <rect x="55" y="160" width="6" height="8" fill="white"/>
-                <rect x="65" y="160" width="6" height="8" fill="white"/>
-                <rect x="75" y="160" width="6" height="8" fill="white"/>
-                <rect x="55" y="180" width="6" height="8" fill="white"/>
-                <rect x="65" y="180" width="6" height="8" fill="white"/>
-                <rect x="75" y="180" width="6" height="8" fill="white"/>
-                
-                <rect x="105" y="130" width="6" height="8" fill="white"/>
-                <rect x="115" y="130" width="6" height="8" fill="white"/>
-                <rect x="125" y="130" width="6" height="8" fill="white"/>
-                <rect x="105" y="150" width="6" height="8" fill="white"/>
-                <rect x="115" y="150" width="6" height="8" fill="white"/>
-                <rect x="125" y="150" width="6" height="8" fill="white"/>
-                
-                {/* CANNES text */}
-                <text x="150" y="280" fill="#2D3436" fontSize="16" fontWeight="bold">CANNES</text>
-                
-                {/* Water/Beach */}
-                <ellipse cx="200" cy="270" rx="150" ry="20" fill="#74B9FF" opacity="0.6"/>
-              </svg>
-            </div>
+          <div className="relative hidden lg:flex items-center justify-center">
+            <svg viewBox="0 0 400 300" className="w-full h-auto">
+                {/* Background shapes */}
+                <circle cx="200" cy="150" r="140" fill="gray" opacity="0.05"/>
+                <circle cx="200" cy="150" r="100" fill="gray" opacity="0.05"/>
+
+                {/* Connections */}
+                <path d="M200,150 C140,125 110,125 80,100" stroke="#D1D5DB" strokeWidth="2" fill="none"/>
+                <path d="M200,150 C140,175 110,175 80,200" stroke="#D1D5DB" strokeWidth="2" fill="none"/>
+                <path d="M200,150 C260,125 290,125 320,100" stroke="#D1D5DB" strokeWidth="2" fill="none"/>
+                <path d="M200,150 C260,175 290,175 320,200" stroke="#D1D5DB" strokeWidth="2" fill="none"/>
+                <path d="M200,150 C200,100 200,80 200,50" stroke="#D1D5DB" strokeWidth="2" fill="none"/>
+
+                {/* Nodes */}
+                <circle cx="80" cy="100" r="10" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2"/>
+                <circle cx="80" cy="200" r="10" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2"/>
+                <circle cx="320" cy="100" r="10" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2"/>
+                <circle cx="320" cy="200" r="10" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2"/>
+                <circle cx="200" cy="50" r="10" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="2"/>
+
+                {/* Central Node */}
+                <circle cx="200" cy="150" r="25" fill="#2563EB"/>
+                <text x="200" y="156" textAnchor="middle" fill="white" fontSize="20" fontWeight="bold">C</text>
+            </svg>
           </div>
         </div>
       </main>
