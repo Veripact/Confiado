@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ import { format } from "date-fns"
 import { CalendarIcon, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase-client"
-import { useWeb3AuthUser } from "@web3auth/modal/react"
+import { Web3AuthBridgeContext } from '@/components/providers'
 import { getUserProfile } from "@/lib/profile"
 
 export function CreateDebtForm() {
@@ -33,23 +33,42 @@ export function CreateDebtForm() {
   const [creditorId, setCreditorId] = useState<string | null>(null)
 
   const router = useRouter()
-  const { userInfo } = useWeb3AuthUser()
+
+  // Use the bridge context (safe wrapper around @web3auth hooks)
+  const bridge = useContext(Web3AuthBridgeContext)
+  const userInfo = bridge?.userInfo ?? null
+  const bridgeLoading = bridge?.loading ?? false
 
   // Get the current user's profile ID
   useEffect(() => {
     const getCreditorProfile = async () => {
       if (userInfo?.email) {
-        const profile = await getUserProfile(userInfo.email)
-        if (profile?.id) {
-          setCreditorId(profile.id)
+        try {
+          const profile = await getUserProfile(userInfo.email)
+          if (profile?.id) {
+            setCreditorId(profile.id)
+          } else {
+            // No profile found, set error so UI reflects this
+            setError('No profile found for your account. Please complete your profile.')
+          }
+        } catch (err) {
+          console.error('Error fetching profile:', err)
+          setError('Failed to load profile information')
         }
       }
     }
 
-    if (userInfo?.email) {
-      getCreditorProfile()
+    // If bridge is still initializing, wait
+    if (bridgeLoading) return
+
+    // If bridge finished and no user info, redirect to signin
+    if (!bridgeLoading && !userInfo) {
+      router.replace('/auth/signin')
+      return
     }
-  }, [userInfo])
+
+    getCreditorProfile()
+  }, [userInfo, bridgeLoading, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -156,9 +175,9 @@ export function CreateDebtForm() {
         </div>
       )}
 
-      {!creditorId && (
+      {!creditorId && !error && (
         <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md">
-          Loading your profile information...
+          {bridgeLoading ? 'Loading your profile information...' : 'Preparing profile...'}
         </div>
       )}
 

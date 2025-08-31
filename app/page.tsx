@@ -1,14 +1,46 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { useWeb3AuthUser, useWeb3AuthConnect } from "@web3auth/modal/react"
 
 export default function LandingPage() {
   const router = useRouter()
-  const { userInfo, loading: authLoading } = useWeb3AuthUser()
-  const { isConnected, connect, loading: connectLoading } = useWeb3AuthConnect()
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Always call hooks at the top level - React Rules of Hooks
+  // Never wrap hook calls in try-catch blocks
+  let userResult, connectResult;
+  
+  try {
+    userResult = useWeb3AuthUser()
+    connectResult = useWeb3AuthConnect()
+  } catch (error) {
+    console.log('🔍 LandingPage - Web3Auth provider not ready yet:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400">
+        <div className="text-center">
+          <p className="text-lg text-white mb-4">Initializing authentication service...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  const { userInfo, loading: authLoading } = userResult || { userInfo: null, loading: false }
+  const { isConnected, connect, loading: connectLoading } = connectResult || { isConnected: false, connect: null, loading: false }
+
+  // Check if Web3Auth is available
+  const isWeb3AuthAvailable = userResult && connectResult;
+
+  if (!isWeb3AuthAvailable) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400">
+        <p className="text-lg text-white">Authentication service unavailable</p>
+      </div>
+    )
+  }
 
   // Redirect to dashboard if already connected and handle profile creation
   useEffect(() => {
@@ -36,23 +68,34 @@ export default function LandingPage() {
           } else {
             console.warn("No email found in userInfo, skipping profile creation")
           }
+
+          // Small delay to ensure everything is set up properly
+          setTimeout(() => {
+            console.log("Redirecting to dashboard from landing page")
+            router.push("/dashboard")
+          }, 1000)
         } catch (error) {
           console.error("Error handling user profile on landing page:", error)
         }
-
-        // Redirect to dashboard
-        router.push("/dashboard")
       }
     }
 
-    handleConnection()
+    // Only redirect if we're not already on the dashboard page
+    if (window.location.pathname !== '/dashboard') {
+      handleConnection()
+    }
   }, [authLoading, isConnected, userInfo, router])
 
   const handleConnect = async () => {
+    if (!connect) return
+
+    setIsLoading(true)
     try {
       await connect()
     } catch (error) {
       console.error("Connection failed:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 

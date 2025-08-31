@@ -1,33 +1,51 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useWeb3AuthUser, useWeb3AuthConnect } from "@web3auth/modal/react"
+import { useState, useEffect, useContext } from "react"
+import { Web3AuthBridgeContext } from '@/components/providers'
 import { Badge } from "@/components/ui/badge"
 import { Wallet, Copy, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function WalletInfo() {
-  const { userInfo } = useWeb3AuthUser()
-  const { provider } = useWeb3AuthConnect()
   const [walletAddress, setWalletAddress] = useState<string>("")
   const [balance, setBalance] = useState<string>("0.00")
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Use the bridge to access auth state and provider safely
+  const bridge = useContext(Web3AuthBridgeContext)
+  const { userInfo, isConnected, provider, loading: bridgeLoading } = bridge || { userInfo: null, isConnected: false, provider: null, loading: true }
+  const userLoading = bridgeLoading
+
+  // Check if Web3Auth is available
+  const isWeb3AuthAvailable = !!bridge
+
+  if (!isWeb3AuthAvailable) {
+    return (
+      <Badge variant="outline" className="flex items-center gap-1">
+        <Wallet className="w-3 h-3" />
+        <span className="text-xs">Service unavailable</span>
+      </Badge>
+    )
+  }
 
   useEffect(() => {
     const getWalletInfo = async () => {
-      if (!provider || !userInfo) {
+      if (!provider || !userInfo || !isConnected) {
         setLoading(false)
         return
       }
 
       try {
+        setError(null)
+        
         // Get wallet address from Web3Auth provider
-        const accounts = await provider.request({ method: "eth_accounts" })
+        const accounts = await provider.request({ method: "eth_accounts" }) as string[]
         console.log("Web3Auth accounts:", accounts)
         console.log("UserInfo:", userInfo)
         
-        if (accounts && accounts.length > 0) {
+        if (accounts && Array.isArray(accounts) && accounts.length > 0) {
           const address = accounts[0]
           setWalletAddress(address)
           
@@ -35,34 +53,47 @@ export function WalletInfo() {
           const balanceHex = await provider.request({
             method: "eth_getBalance",
             params: [address, "latest"]
-          })
+          }) as string
+          
           const balanceWei = parseInt(balanceHex, 16)
-          const balanceEth = (balanceWei / 1e18).toFixed(4)
-          setBalance(balanceEth)
+          const balanceEth = balanceWei / 1e18
+          setBalance(balanceEth.toFixed(4))
         } else {
-          console.log("No accounts found, userInfo:", userInfo)
+          setError('No wallet accounts found')
         }
-        setLoading(false)
       } catch (error) {
         console.error("Error getting wallet info:", error)
+        setError('Failed to load wallet information')
+      } finally {
         setLoading(false)
       }
     }
 
-    // Add delay to ensure provider is fully initialized
-    const timer = setTimeout(getWalletInfo, 1000)
-    return () => clearTimeout(timer)
-  }, [provider, userInfo])
+    getWalletInfo()
+  }, [provider, userInfo, isConnected])
 
   const copyAddress = async () => {
     if (walletAddress) {
-      await navigator.clipboard.writeText(walletAddress)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      try {
+        await navigator.clipboard.writeText(walletAddress)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (error) {
+        console.error('Failed to copy address:', error)
+      }
     }
   }
 
-  if (!userInfo || loading) {
+  if (error) {
+    return (
+      <Badge variant="outline" className="flex items-center gap-1">
+        <Wallet className="w-3 h-3" />
+        <span className="text-xs">Error</span>
+      </Badge>
+    )
+  }
+
+  if (!userInfo || userLoading || loading) {
     return (
       <Badge variant="outline" className="flex items-center gap-1">
         <Wallet className="w-3 h-3" />
@@ -71,11 +102,11 @@ export function WalletInfo() {
     )
   }
 
-  if (!walletAddress) {
+  if (!isConnected || !walletAddress) {
     return (
       <Badge variant="outline" className="flex items-center gap-1">
         <Wallet className="w-3 h-3" />
-        <span className="text-xs">No wallet</span>
+        <span className="text-xs">Not connected</span>
       </Badge>
     )
   }

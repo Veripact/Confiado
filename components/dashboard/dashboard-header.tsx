@@ -15,14 +15,34 @@ import { Plus, Settings, User, LogOut, Wallet } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
-import { useWeb3AuthUser, useWeb3AuthDisconnect } from "@web3auth/modal/react"
-import { WalletInfo } from "@/components/wallet/wallet-info"
+import { useContext } from 'react'
+import { Web3AuthBridgeContext } from '@/components/providers'
+import { WalletInfo } from '@/components/wallet/wallet-info'
 
 export function DashboardHeader() {
   const { viewMode, setViewMode, currentUser } = useAppStore()
   const router = useRouter()
-  const { userInfo } = useWeb3AuthUser()
-  const { disconnect } = useWeb3AuthDisconnect()
+
+  // Use the bridge context (safe wrapper that consumes @web3auth hooks inside the provider)
+  const bridge = useContext(Web3AuthBridgeContext)
+  const userInfo = bridge?.userInfo ?? null
+  const disconnect = bridge?.disconnect ?? (async () => {})
+
+  // Check if Web3Auth is available
+  const isWeb3AuthAvailable = !!bridge;
+
+  if (!isWeb3AuthAvailable) {
+    return (
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="text-lg font-semibold">Confiado</div>
+            <div className="text-sm text-muted-foreground">Authentication service unavailable</div>
+          </div>
+        </div>
+      </header>
+    )
+  }
 
   const handleLogout = async () => {
     try {
@@ -78,7 +98,7 @@ export function DashboardHeader() {
                     <AvatarFallback>
                       {(currentUser?.name || userInfo?.name || "U")
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n: string) => n[0] ?? "")
                         .join("")
                         .toUpperCase() || "U"}
                     </AvatarFallback>

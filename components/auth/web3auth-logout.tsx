@@ -12,8 +12,19 @@ type LogoutButtonProps = {
 const Web3AuthLogout: React.FC<LogoutButtonProps> = ({ className = '' }) => {
   const router = useRouter();
 
-  const { disconnect } = useWeb3AuthDisconnect();
-  const { isConnected } = useWeb3AuthConnect();
+  // Handle Web3Auth hooks with error handling
+  let disconnect = async () => {};
+  let isConnected = false;
+
+  try {
+    const disconnectResult = useWeb3AuthDisconnect();
+    const connectResult = useWeb3AuthConnect();
+    disconnect = disconnectResult.disconnect;
+    isConnected = connectResult.isConnected;
+  } catch (error) {
+    // Web3Auth hooks failed, likely because provider is not available
+    console.log('Web3Auth hooks not available in Web3AuthLogout:', error);
+  }
 
   const handleLogout = async () => {
     console.log('Logging out...');

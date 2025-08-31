@@ -20,9 +20,34 @@ export function SignUpForm() {
   const [phone, setPhone] = useState("")
   const [name, setName] = useState("")
   const [signUpMethod, setSignUpMethod] = useState<"email" | "phone">("email")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { connect, isConnected } = useWeb3AuthConnect()
-  const { userInfo } = useWeb3AuthUser()
+
+  // Always call hooks at the top level - React Rules of Hooks
+  // Never wrap hook calls in try-catch blocks
+  const connectResult = useWeb3AuthConnect()
+  const userResult = useWeb3AuthUser()
+
+  const { connect, isConnected, loading: connectLoading } = connectResult || { connect: null, isConnected: false, loading: false }
+  const { userInfo, loading: userLoading } = userResult || { userInfo: null, loading: false }
+
+  // Check if Web3Auth is available
+  const isWeb3AuthAvailable = connectResult && userResult;
+
+  if (!isWeb3AuthAvailable) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-red-500 text-sm">Authentication service unavailable</p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="w-full mt-2"
+          variant="outline"
+        >
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,9 +62,12 @@ export function SignUpForm() {
 
   const handleWeb3AuthSignUp = async () => {
     try {
+      setIsLoading(true)
       await connect()
     } catch (error) {
       console.error("Web3Auth signup failed:", error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -189,8 +217,8 @@ export function SignUpForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full">
-          Create Account
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
 

@@ -79,7 +79,12 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Restoring your session...</p>
+          <div className="text-center">
+            <p className="text-muted-foreground">Restoring your session...</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              This may take a few moments
+            </p>
+          </div>
         </div>
       </div>
     )
