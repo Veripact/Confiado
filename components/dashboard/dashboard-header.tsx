@@ -16,6 +16,7 @@ import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { useWeb3AuthUser, useWeb3AuthDisconnect } from "@web3auth/modal/react"
+import { WalletBalance } from "@/components/wallet/wallet-balance"
 
 export function DashboardHeader() {
   const { viewMode, setViewMode } = useAppStore()
@@ -59,6 +60,7 @@ export function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-4">
+            <WalletBalance />
             {viewMode === "creditor" && (
               <Button asChild size="sm" className="hidden sm:flex">
                 <Link href="/debt/create">
