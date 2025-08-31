@@ -2,13 +2,16 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useRouter } from "next/navigation"
+import { useWeb3AuthConnect } from "@web3auth/modal/react"
+import { useWeb3AuthUser } from "@web3auth/modal/react"
+import { upsertUserProfile } from "@/lib/profile"
 
 export function SignUpForm() {
   const [email, setEmail] = useState("")
@@ -18,6 +21,8 @@ export function SignUpForm() {
   const [name, setName] = useState("")
   const [signUpMethod, setSignUpMethod] = useState<"email" | "phone">("email")
   const router = useRouter()
+  const { connect, isConnected } = useWeb3AuthConnect()
+  const { userInfo } = useWeb3AuthUser()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,14 +30,47 @@ export function SignUpForm() {
       alert("Passwords do not match")
       return
     }
-    // Mock authentication - redirect to dashboard
-    router.push("/dashboard")
+    // For traditional email/password signup, you would integrate with your auth provider
+    // For now, we'll redirect to Web3Auth
+    handleWeb3AuthSignUp()
+  }
+
+  const handleWeb3AuthSignUp = async () => {
+    try {
+      await connect()
+    } catch (error) {
+      console.error("Web3Auth signup failed:", error)
+    }
   }
 
   const handleGoogleSignUp = () => {
-    // Mock Google sign up - redirect to dashboard
-    router.push("/dashboard")
+    // Web3Auth handles Google OAuth
+    handleWeb3AuthSignUp()
   }
+
+  // Handle successful signup and profile creation
+  useEffect(() => {
+    const handleUserSignup = async () => {
+      if (isConnected && userInfo) {
+        try {
+          // Create user profile in database
+          const profile = await upsertUserProfile(userInfo)
+          if (profile) {
+            console.log("User profile created successfully during signup")
+          } else {
+            console.warn("Failed to create user profile during signup")
+          }
+        } catch (error) {
+          console.error("Error creating user profile during signup:", error)
+        }
+
+        // Redirect to dashboard
+        router.replace("/dashboard")
+      }
+    }
+
+    handleUserSignup()
+  }, [isConnected, userInfo, router])
 
   return (
     <div className="space-y-6">

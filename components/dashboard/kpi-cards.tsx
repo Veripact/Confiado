@@ -12,6 +12,8 @@ type TimeRange = "30d" | "90d" | "all"
 
 interface Debt {
   id: string
+  creditorId: string
+  counterpartyId: string
   creditorName: string
   debtorName: string
   total: number
@@ -36,8 +38,8 @@ export function KpiCards() {
         .from('debts')
         .select(`
           *,
-          creditor:profiles!debts_creditor_id_fkey(name),
-          counterparty:profiles!debts_counterparty_id_fkey(name),
+          creditor:profiles!debts_creditor_id_fkey(id, name),
+          counterparty:profiles!debts_counterparty_id_fkey(id, name),
           payments(*)
         `)
 
@@ -55,6 +57,8 @@ export function KpiCards() {
 
         return {
           id: debt.id,
+          creditorId: debt.creditor?.id,
+          counterpartyId: debt.counterparty?.id,
           creditorName: debt.creditor?.name || 'Unknown',
           debtorName: debt.counterparty?.name || 'Unknown',
           total,
@@ -90,8 +94,10 @@ export function KpiCards() {
 
   // Filter debts based on view mode and time range
   const relevantDebts = debts.filter((debt) => {
+    if (!currentUser) return false
+
     const isRelevant =
-      viewMode === "creditor" ? debt.creditorName === currentUser.name : debt.debtorName === currentUser.name
+      viewMode === "creditor" ? debt.creditorId === currentUser.id : debt.counterpartyId === currentUser.id
     return isRelevant && filterByTimeRange(debt.createdDate)
   })
 

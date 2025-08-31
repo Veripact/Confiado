@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,8 @@ import { format } from "date-fns"
 import { CalendarIcon, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase-client"
+import { useWeb3AuthUser } from "@web3auth/modal/react"
+import { getUserProfile } from "@/lib/profile"
 
 export function CreateDebtForm() {
   const [debtorName, setDebtorName] = useState("")
@@ -28,25 +30,62 @@ export function CreateDebtForm() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [creditorId, setCreditorId] = useState<string | null>(null)
 
   const router = useRouter()
+  const { userInfo } = useWeb3AuthUser()
+
+  // Get the current user's profile ID
+  useEffect(() => {
+    const getCreditorProfile = async () => {
+      if (userInfo?.email) {
+        const profile = await getUserProfile(userInfo.email)
+        if (profile?.id) {
+          setCreditorId(profile.id)
+        }
+      }
+    }
+
+    if (userInfo?.email) {
+      getCreditorProfile()
+    }
+  }, [userInfo])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
 
-    try {
-      // Assume creditor is the current user (mock for now)
-      const creditorId = "550e8400-e29b-41d4-a716-446655440000" // Mock UUID for John Doe
+    if (!creditorId) {
+      setError("Unable to identify creditor. Please try refreshing the page.")
+      setIsLoading(false)
+      return
+    }
 
-      // Insert debtor profile
+    // Check if debtor contact matches creditor's contact to prevent self-debt
+    if (contactMethod === "email" && email === userInfo?.email) {
+      setError("You cannot create a debt with yourself as the debtor.")
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      // Upsert debtor profile (create if doesn't exist, or use existing)
+      const upsertData: any = {
+        name: debtorName,
+      }
+
+      if (contactMethod === "email") {
+        upsertData.email = email
+      } else {
+        upsertData.phone_e164 = phone
+      }
+
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          name: debtorName,
-          email: contactMethod === "email" ? email : null,
-          phone_e164: contactMethod === "phone" ? phone : null,
+        .upsert(upsertData, {
+          onConflict: contactMethod === "email" ? 'email' : 'phone_e164',
+          ignoreDuplicates: false
         })
         .select('id')
         .single()
@@ -54,6 +93,13 @@ export function CreateDebtForm() {
       if (profileError) throw profileError
 
       const debtorId = profileData.id
+
+      // Double-check that debtor is not the same as creditor
+      if (debtorId === creditorId) {
+        setError("You cannot create a debt with yourself as the debtor.")
+        setIsLoading(false)
+        return
+      }
 
       // Insert debt
       const { error: debtError } = await supabase
@@ -110,6 +156,12 @@ export function CreateDebtForm() {
         </div>
       )}
 
+      {!creditorId && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md">
+          Loading your profile information...
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="debtorName">Debtor Name *</Label>
@@ -120,6 +172,7 @@ export function CreateDebtForm() {
             value={debtorName}
             onChange={(e) => setDebtorName(e.target.value)}
             required
+            disabled={!creditorId}
           />
         </div>
 
@@ -132,6 +185,7 @@ export function CreateDebtForm() {
               size="sm"
               onClick={() => setContactMethod("email")}
               className="flex-1"
+              disabled={!creditorId}
             >
               Email
             </Button>
@@ -141,6 +195,7 @@ export function CreateDebtForm() {
               size="sm"
               onClick={() => setContactMethod("phone")}
               className="flex-1"
+              disabled={!creditorId}
             >
               Phone
             </Button>
@@ -156,6 +211,7 @@ export function CreateDebtForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={!creditorId}
               />
             </div>
           ) : (
@@ -168,6 +224,7 @@ export function CreateDebtForm() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
+                disabled={!creditorId}
               />
             </div>
           )}
@@ -185,12 +242,13 @@ export function CreateDebtForm() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
+              disabled={!creditorId}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="currency">Currency</Label>
-            <Select value={currency} onValueChange={setCurrency}>
+            <Select value={currency} onValueChange={setCurrency} disabled={!creditorId}>
               <SelectTrigger>
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
@@ -213,6 +271,7 @@ export function CreateDebtForm() {
               <Button
                 variant="outline"
                 className={cn("w-full justify-start text-left font-normal", !dueDate && "text-muted-foreground")}
+                disabled={!creditorId}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {dueDate ? format(dueDate, "PPP") : "Select due date"}
@@ -238,6 +297,7 @@ export function CreateDebtForm() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            disabled={!creditorId}
           />
         </div>
       </div>
@@ -263,7 +323,7 @@ export function CreateDebtForm() {
       <Button
         type="submit"
         className="w-full"
-        disabled={isLoading || !debtorName || !amount || !dueDate || (!email && !phone)}
+        disabled={isLoading || !creditorId || !debtorName || !amount || !dueDate || (!email && !phone)}
       >
         {isLoading ? "Creating Debt..." : "Create Debt"}
       </Button>

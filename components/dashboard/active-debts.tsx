@@ -12,6 +12,8 @@ import { useEffect, useState } from "react"
 
 interface Debt {
   id: string
+  creditorId: string
+  counterpartyId: string
   creditorName: string
   debtorName: string
   total: number
@@ -34,8 +36,8 @@ export function ActiveDebts() {
         .from('debts')
         .select(`
           *,
-          creditor:profiles!debts_creditor_id_fkey(name),
-          counterparty:profiles!debts_counterparty_id_fkey(name),
+          creditor:profiles!debts_creditor_id_fkey(id, name),
+          counterparty:profiles!debts_counterparty_id_fkey(id, name),
           payments(*)
         `)
 
@@ -53,6 +55,8 @@ export function ActiveDebts() {
 
         return {
           id: debt.id,
+          creditorId: debt.creditor?.id,
+          counterpartyId: debt.counterparty?.id,
           creditorName: debt.creditor?.name || 'Unknown',
           debtorName: debt.counterparty?.name || 'Unknown',
           total,
@@ -73,11 +77,13 @@ export function ActiveDebts() {
   }, [])
 
   const activeDebts = debts.filter((debt) => {
+    if (!currentUser) return false
+
     const isActive = debt.status === "active" || debt.status === "overdue"
     if (viewMode === "creditor") {
-      return isActive && debt.creditorName === currentUser.name
+      return isActive && debt.creditorId === currentUser.id
     } else {
-      return isActive && debt.debtorName === currentUser.name
+      return isActive && debt.counterpartyId === currentUser.id
     }
   })
 

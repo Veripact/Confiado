@@ -8,6 +8,8 @@ import { useEffect, useState } from "react"
 
 interface Debt {
   id: string
+  creditorId: string
+  counterpartyId: string
   creditorName: string
   debtorName: string
   total: number
@@ -30,8 +32,8 @@ export function SummaryCards() {
         .from('debts')
         .select(`
           *,
-          creditor:profiles!debts_creditor_id_fkey(name),
-          counterparty:profiles!debts_counterparty_id_fkey(name),
+          creditor:profiles!debts_creditor_id_fkey(id, name),
+          counterparty:profiles!debts_counterparty_id_fkey(id, name),
           payments(*)
         `)
 
@@ -49,6 +51,8 @@ export function SummaryCards() {
 
         return {
           id: debt.id,
+          creditorId: debt.creditor?.id,
+          counterpartyId: debt.counterparty?.id,
           creditorName: debt.creditor?.name || 'Unknown',
           debtorName: debt.counterparty?.name || 'Unknown',
           total,
@@ -69,10 +73,12 @@ export function SummaryCards() {
   }, [])
 
   const relevantDebts = debts.filter((debt) => {
+    if (!currentUser) return false
+
     if (viewMode === "creditor") {
-      return debt.creditorName === currentUser.name
+      return debt.creditorId === currentUser.id
     } else {
-      return debt.debtorName === currentUser.name
+      return debt.counterpartyId === currentUser.id
     }
   })
 

@@ -19,12 +19,42 @@ const Web3AuthSignIn: React.FC<{ className?: string }> = ({ className = "" }) =>
     }
   };
 
-  // Handle successful login
+  // Handle successful login and profile creation
   useEffect(() => {
-    if (isConnected && userInfo) {
-      // Redirect to dashboard
-      router.replace("/dashboard");
-    }
+    const handleUserLogin = async () => {
+      if (isConnected && userInfo) {
+        try {
+          // Import profile utilities dynamically to avoid SSR issues
+          const { getUserProfile, upsertUserProfile } = await import("@/lib/profile");
+
+          // First check if profile already exists
+          if (userInfo.email) {
+            const existingProfile = await getUserProfile(userInfo.email);
+
+            if (!existingProfile) {
+              // Only create profile if it doesn't exist
+              const profile = await upsertUserProfile(userInfo);
+              if (profile) {
+                console.log("User profile created successfully");
+              } else {
+                console.warn("Failed to create user profile");
+              }
+            } else {
+              console.log("User profile already exists, skipping creation");
+            }
+          } else {
+            console.warn("No email found in userInfo, skipping profile creation");
+          }
+        } catch (error) {
+          console.error("Error handling user profile:", error);
+        }
+
+        // Redirect to dashboard
+        router.replace("/dashboard");
+      }
+    };
+
+    handleUserLogin();
   }, [isConnected, userInfo, router]);
 
   return (

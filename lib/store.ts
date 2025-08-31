@@ -12,7 +12,7 @@ export interface User {
 
 interface AppState {
   // User data
-  currentUser: User
+  currentUser: User | null
   viewMode: "creditor" | "debtor"
 
   // Settings
@@ -27,6 +27,7 @@ interface AppState {
 
   // Actions
   setViewMode: (mode: "creditor" | "debtor") => void
+  setCurrentUser: (user: User | null) => void
   updateUser: (updates: Partial<User>) => void
   updateSettings: (settings: Partial<Pick<AppState, "theme" | "currency" | "language" | "notifications">>) => void
 }
@@ -35,14 +36,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       // Initial state
-      currentUser: {
-        id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        phone: "+1 (555) 123-4567",
-        avatar: "/diverse-user-avatars.png",
-        ensLabel: "manolo.confiado.eth",
-      },
+      currentUser: null,
       viewMode: "creditor",
       theme: "system",
       currency: "USD",
@@ -56,9 +50,11 @@ export const useAppStore = create<AppState>()(
       // Actions
       setViewMode: (mode) => set({ viewMode: mode }),
 
+      setCurrentUser: (user) => set({ currentUser: user }),
+
       updateUser: (updates) => {
         set((state) => ({
-          currentUser: { ...state.currentUser, ...updates },
+          currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null,
         }))
       },
 

@@ -19,7 +19,7 @@ import { useWeb3AuthUser, useWeb3AuthDisconnect } from "@web3auth/modal/react"
 import { WalletInfo } from "@/components/wallet/wallet-info"
 
 export function DashboardHeader() {
-  const { viewMode, setViewMode } = useAppStore()
+  const { viewMode, setViewMode, currentUser } = useAppStore()
   const router = useRouter()
   const { userInfo } = useWeb3AuthUser()
   const { disconnect } = useWeb3AuthDisconnect()
@@ -74,12 +74,13 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={userInfo?.profileImage || "/placeholder.svg"} alt={userInfo?.name || "User"} />
+                    <AvatarImage src={currentUser?.avatar || userInfo?.profileImage || "/placeholder.svg"} alt={currentUser?.name || userInfo?.name || "User"} />
                     <AvatarFallback>
-                      {userInfo?.name
-                        ?.split(" ")
+                      {(currentUser?.name || userInfo?.name || "U")
+                        .split(" ")
                         .map((n) => n[0])
-                        .join("") || "U"}
+                        .join("")
+                        .toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -87,8 +88,8 @@ export function DashboardHeader() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userInfo?.name || "Usuario"}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{userInfo?.email}</p>
+                    <p className="text-sm font-medium leading-none">{currentUser?.name || userInfo?.name || "Usuario"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{currentUser?.email || userInfo?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

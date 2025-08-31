@@ -16,9 +16,9 @@ const Web3AuthLogout: React.FC<LogoutButtonProps> = ({ className = '' }) => {
   const { isConnected } = useWeb3AuthConnect();
 
   const handleLogout = async () => {
-    console.log('Cerrando sesión...');
+    console.log('Logging out...');
     if (!isConnected) {
-      console.warn('Web3Auth no está conectado, no se puede cerrar sesión.');
+      console.warn('Web3Auth is not connected, cannot log out.');
       return;
     }
     await disconnect();
@@ -31,7 +31,7 @@ const Web3AuthLogout: React.FC<LogoutButtonProps> = ({ className = '' }) => {
       variant="destructive"
       className={`${className}`}
     >
-      Cerrar Sesión
+      Log Out
     </Button>
   );
 };
