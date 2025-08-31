@@ -1,0 +1,17 @@
+[build]
+  publish = ".next"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production.environment]
+  NEXT_PUBLIC_WEB3AUTH_CLIENT_ID = ""
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_WEB3AUTH_CLIENT_ID = ""

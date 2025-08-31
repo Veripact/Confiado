@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 
 export function WalletInfo() {
   const { userInfo } = useWeb3AuthUser()
-  const { provider } = useWeb3AuthConnect()
+  const { isConnected } = useWeb3AuthConnect()
   const [walletAddress, setWalletAddress] = useState<string>("")
   const [balance, setBalance] = useState<string>("0.00")
   const [loading, setLoading] = useState(true)
@@ -16,32 +16,24 @@ export function WalletInfo() {
 
   useEffect(() => {
     const getWalletInfo = async () => {
-      if (!provider || !userInfo) {
+      if (!isConnected || !userInfo) {
         setLoading(false)
         return
       }
 
       try {
-        // Get wallet address from Web3Auth provider
-        const accounts = await provider.request({ method: "eth_accounts" })
-        console.log("Web3Auth accounts:", accounts)
+        // For now, show user info without provider access
         console.log("UserInfo:", userInfo)
         
-        if (accounts && accounts.length > 0) {
-          const address = accounts[0]
-          setWalletAddress(address)
-          
-          // Get balance
-          const balanceHex = await provider.request({
-            method: "eth_getBalance",
-            params: [address, "latest"]
-          })
-          const balanceWei = parseInt(balanceHex, 16)
-          const balanceEth = (balanceWei / 1e18).toFixed(4)
-          setBalance(balanceEth)
-        } else {
-          console.log("No accounts found, userInfo:", userInfo)
+        // Extract wallet address from userInfo if available
+        const wallets = (userInfo as any)?.wallets
+        if (wallets && wallets.length > 0) {
+          const address = wallets[0].address || wallets[0].public_key
+          if (address) {
+            setWalletAddress(address)
+          }
         }
+        
         setLoading(false)
       } catch (error) {
         console.error("Error getting wallet info:", error)
@@ -52,7 +44,7 @@ export function WalletInfo() {
     // Add delay to ensure provider is fully initialized
     const timer = setTimeout(getWalletInfo, 1000)
     return () => clearTimeout(timer)
-  }, [provider, userInfo])
+  }, [isConnected, userInfo])
 
   const copyAddress = async () => {
     if (walletAddress) {

@@ -17,6 +17,7 @@ export default function LandingPage() {
     }
   }, [authLoading, isConnected, router])
 
+
   const handleConnect = async () => {
     try {
       await connect()

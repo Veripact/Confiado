@@ -8,7 +8,13 @@ const Web3AuthSignIn: React.FC<{ className?: string }> = ({ className = "" }) =>
   const { connect, loading } = useWeb3AuthConnect();
 
   const handleSignIn = async () => {
-    await connect();
+    try {
+      console.log("Starting Web3Auth connection...")
+      const result = await connect();
+      console.log("Web3Auth connection result:", result)
+    } catch (error) {
+      console.error("Web3Auth connection error:", error)
+    }
   };
 
   return (
