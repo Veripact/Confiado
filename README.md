@@ -1,20 +1,68 @@
-# Confiado
+# Confiado 🤝
 
-A debt management application built with Next.js, TypeScript, and Tailwind CSS.
+**Transparent and secure debt management with blockchain technology.**
 
-## Prerequisites
+<div align="center">
+  <img src="public/Logo_Confiado.png" alt="Confiado Logo" width="200"/>
+</div>
 
-Before you begin, ensure you have the following installed on your system:
+---
 
-- **Node.js** (version 18 or higher)
-- **pnpm** (recommended package manager)
+<div align="center">
 
-To install pnpm globally:
+**🚀 Digital Trust Platform 🚀**
+
+💰 **Smart Debt Management**
+<br/>
+🔐 **Secure Web3 Authentication**
+<br/>
+📱 **Real-time Notifications**
+
+</div>
+
+---
+
+<div align="center">
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://ytconfiado-j82vhczph-yt2810s-projects.vercel.app)
+[![Blockchain](https://img.shields.io/badge/Blockchain-Lisk_Testnet-4A90E2?style=for-the-badge&logo=ethereum&logoColor=white)](https://sepolia-blockscout.lisk.com/)
+
+</div>
+
+## What is Confiado?
+
+Confiado revolutionizes debt management by combining blockchain transparency with an intuitive user experience. Create, confirm, and track debts securely with automatic notifications and blockchain-backed trust.
+
+## ✨ Core Features
+
+- **🤝 Debt Management**: Create and track debts between users transparently
+- **🔐 Web3 Authentication**: Secure login with Web3Auth - no complex wallets needed
+- **📧 Smart Notifications**: Automatic confirmation system via email/SMS
+- **💳 Partial Payments**: Record and confirm partial payments with complete history
+- **🔗 Blockchain Security**: Data integrity guaranteed on Lisk testnet
+- **📱 Modern Interface**: Mobile and desktop optimized UI/UX
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js + TypeScript + Tailwind CSS
+- **Authentication**: Web3Auth + Supabase
+- **Database**: Supabase
+- **Blockchain**: Lisk Testnet
+- **Smart Contracts**: Solidity + Hardhat
+- **UI**: shadcn/ui + Lucide React
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** (version 18+)
+- **pnpm** (recommended)
+
 ```bash
 npm install -g pnpm
 ```
 
-## Getting Started
+### Installation
 
 1. **Clone the repository**
    ```bash
@@ -27,67 +75,61 @@ npm install -g pnpm
    pnpm install
    ```
 
-3. **Run the development server**
+3. **Setup environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Configure these variables:
+   ```env
+   NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=your_web3auth_client_id
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+   ```
+
+4. **Run development server**
    ```bash
    pnpm dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Available Scripts
+## 📋 Available Scripts
 
-- `pnpm dev` - Starts the development server
-- `pnpm build` - Builds the application for production
-- `pnpm start` - Starts the production server (requires build first)
-- `pnpm lint` - Runs ESLint to check for code issues
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
 
-## Building for Production
+## 🔄 User Flow
 
-1. **Build the application**
-   ```bash
-   pnpm build
-   ```
+1. **Sign Up/Login** → Web3Auth authentication
+2. **Create Debt** → Creditor registers a debt
+3. **Notification** → Debtor receives email/SMS confirmation
+4. **Confirmation** → Debtor accepts debt via secure link
+5. **Dashboard** → View debts (Total/Paid/Remaining)
+6. **Partial Payments** → Record and confirm payments
+7. **Completion** → Mutual confirmation of debt settlement
 
-2. **Start the production server**
-   ```bash
-   pnpm start
-   ```
+## 🚀 Deployment
 
-The application will be optimized and ready for deployment.
+Live application on Vercel:
+- **Production**: [https://ytconfiado-j82vhczph-yt2810s-projects.vercel.app](https://ytconfiado-j82vhczph-yt2810s-projects.vercel.app)
 
-## Tech Stack
+## 🤝 Contributing
 
-- **Framework**: Next.js 15.2.4
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui
-- **Icons**: Lucide React
-- **State Management**: Zustand
-- **Forms**: React Hook Form with Zod validation
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Project Structure
+## 📄 License
 
-- `app/` - Next.js app router pages and layouts
-- `components/` - Reusable React components
-- `lib/` - Utility functions and configurations
-- `hooks/` - Custom React hooks
-- `public/` - Static assets
-- `styles/` - Global styles
+This project is licensed under the MIT License. See `LICENSE` for details.
 
-## Development Notes
+---
 
-- The project uses Next.js App Router
-- TypeScript and ESLint errors are ignored during builds (configured in `next.config.mjs`)
-- Images are unoptimized for easier deployment
-- Uses pnpm workspaces and modern React features
-
-
-## Running with HTTPS
-
-For web3 integrations, you may need to run the development server with HTTPS enabled:
-
-```bash
-pnpm run dev --experimental-https
-```
-
-This starts the server on [https://localhost:3000](https://localhost:3000). You might need to whitelist the self-signed certificate in your browser to allow web3 connections.
+<div align="center">
+  <strong>Built with ❤️ by the Veripact team</strong>
+</div>
