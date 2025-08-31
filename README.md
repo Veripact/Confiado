@@ -80,3 +80,14 @@ The application will be optimized and ready for deployment.
 - TypeScript and ESLint errors are ignored during builds (configured in `next.config.mjs`)
 - Images are unoptimized for easier deployment
 - Uses pnpm workspaces and modern React features
+
+
+## Running with HTTPS
+
+For web3 integrations, you may need to run the development server with HTTPS enabled:
+
+```bash
+pnpm run dev --experimental-https
+```
+
+This starts the server on [https://localhost:3000](https://localhost:3000). You might need to whitelist the self-signed certificate in your browser to allow web3 connections.
