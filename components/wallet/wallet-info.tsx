@@ -5,6 +5,7 @@ import { useWeb3AuthUser, useWeb3AuthConnect } from "@web3auth/modal/react"
 import { Badge } from "@/components/ui/badge"
 import { Wallet, Copy, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ENSDisplay } from "@/components/ens/ens-display"
 
 export function WalletInfo() {
   const { userInfo } = useWeb3AuthUser()
@@ -81,9 +82,12 @@ export function WalletInfo() {
         </span>
       </Badge>
       <div className="flex items-center gap-1">
-        <span className="font-mono text-xs text-muted-foreground">
-          {`${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`}
-        </span>
+        <ENSDisplay 
+          address={walletAddress} 
+          showAvatar={false} 
+          showBadge={false}
+          className="text-xs text-muted-foreground"
+        />
         <Button
           variant="ghost"
           size="sm"

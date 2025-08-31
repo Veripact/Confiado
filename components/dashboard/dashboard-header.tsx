@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Settings, User, LogOut, Wallet } from "lucide-react"
+import { Plus, Settings, User, LogOut, Wallet, Globe } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
@@ -122,6 +122,10 @@ export function DashboardHeader() {
                 <DropdownMenuItem onClick={() => router.push("/profile")}>
                   <User className="w-4 h-4 mr-2" />
                   Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/ens")}>
+                  <Globe className="w-4 h-4 mr-2" />
+                  ENS Resolver
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/settings")}>
                   <Settings className="w-4 h-4 mr-2" />
