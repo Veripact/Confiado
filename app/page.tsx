@@ -28,7 +28,7 @@ export default function LandingPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-400 via-orange-400 to-yellow-400">
-        <p className="text-lg text-white">Cargando...</p>
+        <p className="text-lg text-white">Loading...</p>
       </div>
     )
   }
@@ -73,7 +73,7 @@ export default function LandingPage() {
             disabled={connectLoading}
             className="bg-black text-white hover:bg-gray-800 px-6 py-3 rounded-full font-medium"
           >
-            {connectLoading ? "Conectando..." : "Connect"}
+            {connectLoading ? "Connecting..." : "Connect"}
           </Button>
         </div>
       </header>
