@@ -14,7 +14,6 @@ import { ActiveDebts } from "@/components/dashboard/active-debts"
 import { DebtHistory } from "@/components/dashboard/debt-history"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { useWeb3AuthUser, useWeb3AuthConnect } from "@web3auth/modal/react"
-import Web3AuthLogout from "@/components/auth/web3auth-logout"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -38,7 +37,6 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 py-6 space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <Web3AuthLogout />
         </div>
         <ActiveDebts />
         <DebtHistory />

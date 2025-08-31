@@ -11,14 +11,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Settings, User } from "lucide-react"
+import { Plus, Settings, User, LogOut, Wallet } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
+import { useWeb3AuthUser, useWeb3AuthLogout } from "@web3auth/modal/react"
 
 export function DashboardHeader() {
-  const { currentUser, viewMode, setViewMode } = useAppStore()
+  const { viewMode, setViewMode } = useAppStore()
   const router = useRouter()
+  const { userInfo } = useWeb3AuthUser()
+  const { logout } = useWeb3AuthLogout()
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      router.push("/")
+    } catch (error) {
+      console.error("Error logging out:", error)
+    }
+  }
 
   return (
     <header className="border-b bg-card">
@@ -60,12 +72,12 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={currentUser.avatar || "/placeholder.svg"} alt={currentUser.name} />
+                    <AvatarImage src={userInfo?.profileImage || "/placeholder.svg"} alt={userInfo?.name || "User"} />
                     <AvatarFallback>
-                      {currentUser.name
-                        .split(" ")
+                      {userInfo?.name
+                        ?.split(" ")
                         .map((n) => n[0])
-                        .join("")}
+                        .join("") || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -73,12 +85,13 @@ export function DashboardHeader() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{currentUser.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
-                    {currentUser.ensLabel && (
-                      <Badge variant="outline" className="text-xs w-fit">
-                        {currentUser.ensLabel}
-                      </Badge>
+                    <p className="text-sm font-medium leading-none">{userInfo?.name || "Usuario"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{userInfo?.email}</p>
+                    {userInfo?.dappShare && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Wallet className="w-3 h-3" />
+                        <span className="font-mono">{`${userInfo.dappShare.slice(0, 6)}...${userInfo.dappShare.slice(-4)}`}</span>
+                      </div>
                     )}
                   </div>
                 </DropdownMenuLabel>
@@ -119,7 +132,10 @@ export function DashboardHeader() {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/auth/signin")}>Sign out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
