@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
 import { useWeb3AuthLogic } from "@/hooks/useWeb3Auth";
+import { ENSInput } from "@/components/ens/ens-input";
+import { ENSDisplay } from "@/components/ens/ens-display";
+import { useEnsName, useEnsAvatar, useEnsAddress } from 'wagmi';
 
 export default function Web3TestPage() {
   const {
@@ -16,6 +19,21 @@ export default function Web3TestPage() {
   const [transactionResult, setTransactionResult] = useState<string>("");
   const [signedMessage, setSignedMessage] = useState<string>("");
   const [chainId, setChainId] = useState<string>("");
+  const [testAddress] = useState<string>("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"); // vitalik.eth
+  
+  // Test ENS resolution with known addresses
+  const { data: vitalikName } = useEnsName({ 
+    address: testAddress as `0x${string}`, 
+    chainId: 1 
+  });
+  const { data: vitalikAvatar } = useEnsAvatar({ 
+    name: vitalikName || undefined, 
+    chainId: 1 
+  });
+  const { data: vitalikAddress } = useEnsAddress({ 
+    name: "vitalik.eth", 
+    chainId: 1 
+  });
 
   // Handle send transaction - simplified for now
   const handleSendTransaction = async () => {
@@ -62,6 +80,41 @@ export default function Web3TestPage() {
                 <p><strong>Wallet Address:</strong> {account}</p>
                 <p><strong>Balance:</strong> {balance} ETH</p>
                 <p><strong>Network:</strong> Lisk Sepolia Testnet</p>
+              </div>
+            </div>
+
+            {/* ENS Testing Section */}
+            <div className="bg-card p-6 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-4">ENS Testing</h3>
+              
+              {/* Test with known ENS */}
+              <div className="space-y-4">
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Test: vitalik.eth Resolution</h4>
+                  <div className="space-y-2">
+                    <p><strong>ENS Name:</strong> {vitalikName || "Loading..."}</p>
+                    <p><strong>Address:</strong> {vitalikAddress || "Loading..."}</p>
+                    <p><strong>Avatar:</strong> {vitalikAvatar ? "✅ Found" : "❌ Not found"}</p>
+                    {vitalikAvatar && (
+                      <img src={vitalikAvatar} alt="Vitalik Avatar" className="h-12 w-12 rounded-full" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">ENS Resolver Tool</h4>
+                  <ENSInput 
+                    placeholder="Try: vitalik.eth, nick.eth, or any 0x address"
+                    onAddressResolved={(addr, name) => console.log('Resolved:', addr, name)}
+                  />
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Your Wallet ENS</h4>
+                  {account && (
+                    <ENSDisplay address={account} />
+                  )}
+                </div>
               </div>
             </div>
 

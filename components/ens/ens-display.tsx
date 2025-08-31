@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
-import { useENS } from '@/hooks/useENS'
+import { useENSProfile } from '@/hooks/useENS'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -19,13 +18,7 @@ export function ENSDisplay({
   showBadge = true,
   className = "" 
 }: ENSDisplayProps) {
-  const { ensName, ensAvatar, loading, resolveENS } = useENS()
-
-  useEffect(() => {
-    if (address) {
-      resolveENS(address)
-    }
-  }, [address, resolveENS])
+  const { ensName, ensAvatar, loading } = useENSProfile(address as `0x${string}`)
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`

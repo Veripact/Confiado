@@ -1,85 +1,46 @@
-import { useState, useEffect } from 'react'
-import { createPublicClient, http, normalize } from 'viem'
-import { mainnet } from 'viem/chains'
+import { useEnsName, useEnsAvatar, useEnsAddress } from 'wagmi'
+import { normalize } from 'viem/ens'
 
-const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http()
-})
+export function useENSProfile(address?: `0x${string}`) {
+  const { data: ensName, isLoading: nameLoading, error: nameError } = useEnsName({
+    address,
+    chainId: 1,
+  })
 
-export function useENS() {
-  const [ensName, setEnsName] = useState<string | null>(null)
-  const [ensAvatar, setEnsAvatar] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { data: ensAvatar, isLoading: avatarLoading } = useEnsAvatar({
+    name: ensName,
+    chainId: 1,
+  })
 
-  const resolveENS = async (address: string) => {
-    if (!address) return
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      // Resolve ENS name from address
-      const name = await publicClient.getEnsName({
-        address: address as `0x${string}`
-      })
-
-      setEnsName(name)
-
-      // If we have a name, try to get the avatar
-      if (name) {
-        try {
-          const avatar = await publicClient.getEnsAvatar({
-            name: normalize(name)
-          })
-          setEnsAvatar(avatar)
-        } catch (avatarError) {
-          console.warn('Could not resolve ENS avatar:', avatarError)
-          setEnsAvatar(null)
-        }
-      }
-    } catch (err) {
-      console.error('ENS resolution error:', err)
-      setError('Failed to resolve ENS name')
-      setEnsName(null)
-      setEnsAvatar(null)
-    } finally {
-      setLoading(false)
-    }
+  return {
+    ensName,
+    ensAvatar,
+    loading: nameLoading || avatarLoading,
+    error: nameError
   }
+}
 
-  const resolveAddress = async (ensName: string) => {
-    if (!ensName) return null
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const address = await publicClient.getEnsAddress({
-        name: normalize(ensName)
-      })
-      return address
-    } catch (err) {
-      console.error('ENS address resolution error:', err)
-      setError('Failed to resolve ENS address')
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
-
+export function useENSResolver() {
   const isValidENSName = (name: string): boolean => {
     return name.endsWith('.eth') && name.length > 4
   }
 
   return {
-    ensName,
-    ensAvatar,
-    loading,
-    error,
-    resolveENS,
-    resolveAddress,
     isValidENSName
+  }
+}
+
+export function useENSAddress(name?: string) {
+  const normalizedName = name ? normalize(name) : undefined
+  
+  const { data: address, isLoading, error } = useEnsAddress({
+    name: normalizedName,
+    chainId: 1,
+  })
+
+  return {
+    address,
+    loading: isLoading,
+    error
   }
 }
