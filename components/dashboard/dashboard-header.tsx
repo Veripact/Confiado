@@ -15,17 +15,17 @@ import { Plus, Settings, User, LogOut, Wallet } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
-import { useWeb3AuthUser, useWeb3AuthLogout } from "@web3auth/modal/react"
+import { useWeb3AuthUser, useWeb3AuthDisconnect } from "@web3auth/modal/react"
 
 export function DashboardHeader() {
   const { viewMode, setViewMode } = useAppStore()
   const router = useRouter()
   const { userInfo } = useWeb3AuthUser()
-  const { logout } = useWeb3AuthLogout()
+  const { disconnect } = useWeb3AuthDisconnect()
 
   const handleLogout = async () => {
     try {
-      await logout()
+      await disconnect()
       router.push("/")
     } catch (error) {
       console.error("Error logging out:", error)
