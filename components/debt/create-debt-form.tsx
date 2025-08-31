@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase-client"
 import { Web3AuthBridgeContext } from '@/components/providers'
 import { getUserProfile } from "@/lib/profile"
+import { generateDebtConfirmationToken, generateConfirmationLink } from '@/lib/debt-confirmations'
 
 export function CreateDebtForm() {
   const [debtorName, setDebtorName] = useState("")
@@ -31,6 +32,7 @@ export function CreateDebtForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [creditorId, setCreditorId] = useState<string | null>(null)
+  const [confirmationToken, setConfirmationToken] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -121,7 +123,7 @@ export function CreateDebtForm() {
       }
 
       // Insert debt
-      const { error: debtError } = await supabase
+      const { data: debtData, error: debtError } = await supabase
         .from('debts')
         .insert({
           creditor_id: creditorId,
@@ -132,15 +134,23 @@ export function CreateDebtForm() {
           description: description || null,
           status: 'active',
         })
+        .select('id')
+        .single()
 
       if (debtError) throw debtError
 
-      setIsSubmitted(true)
+      const debtId = debtData.id
 
-      // Redirect to dashboard after showing success message
-      setTimeout(() => {
-        router.push("/dashboard")
-      }, 4000)
+      // Generate confirmation link
+      const confirmationToken = await generateDebtConfirmationToken(debtId)
+      if (!confirmationToken) {
+        setError('Failed to generate confirmation link')
+        setIsLoading(false)
+        return
+      }
+
+      setIsSubmitted(true)
+      setConfirmationToken(confirmationToken)
     } catch (err: any) {
       setError(err.message || "Failed to create debt")
     } finally {
@@ -154,15 +164,46 @@ export function CreateDebtForm() {
         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
         <h3 className="text-xl font-serif font-semibold text-primary">Debt Created Successfully!</h3>
         <p className="text-muted-foreground">
-          A confirmation has been sent to {debtorName} at {contactMethod === "email" ? email : phone}. They will need to
-          accept the agreement before it becomes active.
+          A unique confirmation link has been generated for {debtorName}.
+          Share this link with the debtor so they can review and accept the debt agreement.
         </p>
         <div className="bg-muted p-4 rounded-lg">
           <p className="text-sm">
-            <strong>Next Steps:</strong> The debtor will receive a notification to review and accept the debt agreement.
-            You'll be notified once they respond.
+            <strong>Confirmation Link:</strong>
           </p>
+            <div className="mt-2 p-3 bg-white border rounded font-mono text-sm break-all text-black">
+            {confirmationToken ? generateConfirmationLink(confirmationToken) : 'Generating link...'}
+            </div>
+          <Button
+            onClick={() => {
+              const link = confirmationToken ? generateConfirmationLink(confirmationToken) : ''
+              navigator.clipboard.writeText(link)
+            }}
+            className="mt-2"
+            size="sm"
+          >
+            Copy Link
+          </Button>
         </div>
+        <div className="bg-muted p-4 rounded-lg">
+            <div className="space-y-2 text-sm">
+            <p>
+              <strong>Next Steps:</strong>
+            </p>
+            <p>
+              Send the link above to the debtor via your preferred communication method (email, SMS, etc.). Once they accept the debt, you'll be notified and can view the status in your dashboard.
+            </p>
+            <p>
+              This debt will be permanently recorded on the blockchain for transparency and security.
+            </p>
+            </div>
+        </div>
+        <Button
+          onClick={() => router.push("/dashboard")}
+          className="mt-4"
+        >
+          Return to Dashboard
+        </Button>
       </div>
     )
   }
