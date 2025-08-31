@@ -61,42 +61,6 @@ const config: HardhatUserConfig = {
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },
-  etherscan: {
-    apiKey: {
-      liskSepolia: "no-api-key-needed",
-      liskMainnet: "no-api-key-needed",
-      'lisk-sepolia-testnet': 'empty'
-    },
-    customChains: [
-      {
-        network: "liskSepolia",
-        chainId: 4202,
-        urls: {
-          apiURL: "https://sepolia-blockscout.lisk.com/api",
-          browserURL: "https://sepolia-blockscout.lisk.com",
-        },
-      },
-      {
-        network: "liskMainnet", 
-        chainId: 1135,
-        urls: {
-          apiURL: "https://blockscout.lisk.com/api",
-          browserURL: "https://blockscout.lisk.com",
-        },
-      },
-      {
-        network: "lisk-sepolia-testnet",
-        chainId: 4202,
-        urls: {
-          apiURL: "https://sepolia-blockscout.lisk.com/api",
-          browserURL: "https://sepolia-blockscout.lisk.com"
-        }
-      }
-    ],
-  },
-  sourcify: {
-    enabled: false,
-  },
 };
 
 export default config;

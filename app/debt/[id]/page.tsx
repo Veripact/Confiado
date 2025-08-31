@@ -34,9 +34,9 @@ interface PaymentDB {
 }
 
 interface DebtDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function DebtDetailPage({ params }: DebtDetailPageProps) {
