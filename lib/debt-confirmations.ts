@@ -3,6 +3,14 @@ import crypto from 'crypto'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 
+// Helper function to get Supabase client safely
+function getSupabaseClient() {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized - missing environment variables')
+  }
+  return supabase
+}
+
 export interface DebtConfirmationData {
   debtId: string
   debtorName: string
@@ -27,7 +35,7 @@ export async function generateDebtConfirmationToken(debtId: string): Promise<str
   console.log('⏰ Expires at:', expiresAt.toISOString())
 
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient()
       .from('debt_confirmations')
       .insert({
         debt_id: debtId,
@@ -73,7 +81,7 @@ export async function getDebtConfirmationByToken(token: string) {
     await debugConfirmationToken(token)
 
     // Test basic table access
-    const { data: testData, error: testError } = await supabase
+    const { data: testData, error: testError } = await getSupabaseClient()
       .from('debt_confirmations')
       .select('count')
       .limit(1)
@@ -81,7 +89,7 @@ export async function getDebtConfirmationByToken(token: string) {
     console.log('🧪 Basic table access test:', { testData, testError })
 
     // First, let's check if the token exists at all
-    const { data: checkData, error: checkError } = await supabase
+    const { data: checkData, error: checkError } = await getSupabaseClient()
       .from('debt_confirmations')
       .select('id, token, status, expires_at, debt_id')
       .eq('token', token)
@@ -114,7 +122,7 @@ export async function getDebtConfirmationByToken(token: string) {
     }
 
     // Now fetch the debt details separately to avoid RLS issues
-    const { data: debtData, error: debtError } = await supabase
+    const { data: debtData, error: debtError } = await getSupabaseClient()
       .from('debts')
       .select('id, amount_minor, currency, due_date, description, creditor_id, counterparty_id')
       .eq('id', confirmation.debt_id)
@@ -137,7 +145,7 @@ export async function getDebtConfirmationByToken(token: string) {
     }
 
     // Fetch creditor profile
-    const { data: creditorData, error: creditorError } = await supabase
+    const { data: creditorData, error: creditorError } = await getSupabaseClient()
       .from('profiles')
       .select('name, email')
       .eq('id', debtData.creditor_id)
@@ -148,7 +156,7 @@ export async function getDebtConfirmationByToken(token: string) {
     }
 
     // Fetch debtor profile
-    const { data: debtorData, error: debtorError } = await supabase
+    const { data: debtorData, error: debtorError } = await getSupabaseClient()
       .from('profiles')
       .select('name, email, phone_e164')
       .eq('id', debtData.counterparty_id)
@@ -229,7 +237,7 @@ export async function createTestConfirmation(): Promise<string | null> {
     console.log('🧪 Creating test confirmation...')
 
     // First create a test debt
-    const { data: debtData, error: debtError } = await supabase
+    const { data: debtData, error: debtError } = await getSupabaseClient()
       .from('debts')
       .insert({
         creditor_id: 'test-creditor-id', // You'll need to replace this with a real user ID
@@ -306,7 +314,7 @@ export async function debugDatabaseSetup() {
 
     // Check RLS policies
     console.log('🔒 Checking RLS policies...')
-    const { data: policies, error: policiesError } = await supabase
+    const { data: policies, error: policiesError } = await getSupabaseClient()
       .rpc('get_policies', { table_name: 'debt_confirmations' })
 
     if (policiesError) {
@@ -325,7 +333,7 @@ export async function debugConfirmationToken(token: string) {
     console.log('🔍 Debugging token:', token)
 
     // Check if table exists and has data
-    const { data: allConfirmations, error: allError } = await supabase
+    const { data: allConfirmations, error: allError } = await getSupabaseClient()
       .from('debt_confirmations')
       .select('id, token, status, expires_at')
       .limit(5)
@@ -333,7 +341,7 @@ export async function debugConfirmationToken(token: string) {
     console.log('📊 All confirmations in DB:', { allConfirmations, allError })
 
     // Check specific token
-    const { data: tokenData, error: tokenError } = await supabase
+    const { data: tokenData, error: tokenError } = await getSupabaseClient()
       .from('debt_confirmations')
       .select('*')
       .eq('token', token)
