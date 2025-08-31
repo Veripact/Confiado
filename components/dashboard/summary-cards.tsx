@@ -3,9 +3,70 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, TrendingUp, Clock } from "lucide-react"
 import { useAppStore } from "@/lib/store"
+import { supabase } from "@/lib/supabase-client"
+import { useEffect, useState } from "react"
+
+interface Debt {
+  id: string
+  creditorName: string
+  debtorName: string
+  total: number
+  paid: number
+  remaining: number
+  status: string
+  dueDate: string
+  currency: string
+  description?: string
+  payments: any[]
+}
 
 export function SummaryCards() {
-  const { debts, viewMode, currentUser } = useAppStore()
+  const { viewMode, currentUser } = useAppStore()
+  const [debts, setDebts] = useState<Debt[]>([])
+
+  useEffect(() => {
+    const fetchDebts = async () => {
+      const { data, error } = await supabase
+        .from('debts')
+        .select(`
+          *,
+          creditor:profiles!debts_creditor_id_fkey(name),
+          counterparty:profiles!debts_counterparty_id_fkey(name),
+          payments(*)
+        `)
+
+      if (error) {
+        console.error('Error fetching debts:', error)
+        return
+      }
+
+      const mappedDebts = data.map((debt: any) => {
+        const total = debt.amount_minor / 100
+        const paid = debt.payments
+          .filter((p: any) => p.status === 'confirmed')
+          .reduce((sum: number, p: any) => sum + p.amount_minor / 100, 0)
+        const remaining = total - paid
+
+        return {
+          id: debt.id,
+          creditorName: debt.creditor?.name || 'Unknown',
+          debtorName: debt.counterparty?.name || 'Unknown',
+          total,
+          paid,
+          remaining,
+          status: debt.status,
+          dueDate: debt.due_date || '',
+          currency: debt.currency,
+          description: debt.description,
+          payments: debt.payments,
+        }
+      })
+
+      setDebts(mappedDebts)
+    }
+
+    fetchDebts()
+  }, [])
 
   const relevantDebts = debts.filter((debt) => {
     if (viewMode === "creditor") {

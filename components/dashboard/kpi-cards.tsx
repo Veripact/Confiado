@@ -5,13 +5,79 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Info } from "lucide-react"
 import { useAppStore } from "@/lib/store"
-import { useState } from "react"
+import { supabase } from "@/lib/supabase-client"
+import { useEffect, useState } from "react"
 
 type TimeRange = "30d" | "90d" | "all"
 
+interface Debt {
+  id: string
+  creditorName: string
+  debtorName: string
+  total: number
+  paid: number
+  remaining: number
+  status: string
+  dueDate: string
+  currency: string
+  description?: string
+  payments: any[]
+  createdDate: string
+}
+
 export function KpiCards() {
-  const { debts, currentUser, viewMode } = useAppStore()
+  const { currentUser, viewMode } = useAppStore()
+  const [debts, setDebts] = useState<Debt[]>([])
   const [timeRange, setTimeRange] = useState<TimeRange>("90d")
+
+  useEffect(() => {
+    const fetchDebts = async () => {
+      const { data, error } = await supabase
+        .from('debts')
+        .select(`
+          *,
+          creditor:profiles!debts_creditor_id_fkey(name),
+          counterparty:profiles!debts_counterparty_id_fkey(name),
+          payments(*)
+        `)
+
+      if (error) {
+        console.error('Error fetching debts:', error)
+        return
+      }
+
+      const mappedDebts = data.map((debt: any) => {
+        const total = debt.amount_minor / 100
+        const paid = debt.payments
+          .filter((p: any) => p.status === 'confirmed')
+          .reduce((sum: number, p: any) => sum + p.amount_minor / 100, 0)
+        const remaining = total - paid
+
+        return {
+          id: debt.id,
+          creditorName: debt.creditor?.name || 'Unknown',
+          debtorName: debt.counterparty?.name || 'Unknown',
+          total,
+          paid,
+          remaining,
+          status: debt.status,
+          dueDate: debt.due_date || '',
+          currency: debt.currency,
+          description: debt.description,
+          payments: debt.payments.map((p: any) => ({
+            ...p,
+            amount: p.amount_minor / 100,
+            date: p.date,
+          })),
+          createdDate: debt.created_at,
+        }
+      })
+
+      setDebts(mappedDebts)
+    }
+
+    fetchDebts()
+  }, [])
 
   const filterByTimeRange = (date: string) => {
     if (timeRange === "all") return true

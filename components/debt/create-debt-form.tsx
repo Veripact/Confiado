@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns"
 import { CalendarIcon, CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabase-client"
 
 export function CreateDebtForm() {
   const [debtorName, setDebtorName] = useState("")
@@ -26,23 +27,60 @@ export function CreateDebtForm() {
   const [description, setDescription] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError("")
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      // Assume creditor is the current user (mock for now)
+      const creditorId = "550e8400-e29b-41d4-a716-446655440000" // Mock UUID for John Doe
 
-    setIsLoading(false)
-    setIsSubmitted(true)
+      // Insert debtor profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          name: debtorName,
+          email: contactMethod === "email" ? email : null,
+          phone_e164: contactMethod === "phone" ? phone : null,
+        })
+        .select('id')
+        .single()
 
-    // Redirect to dashboard after showing success message
-    setTimeout(() => {
-      router.push("/dashboard")
-    }, 2000)
+      if (profileError) throw profileError
+
+      const debtorId = profileData.id
+
+      // Insert debt
+      const { error: debtError } = await supabase
+        .from('debts')
+        .insert({
+          creditor_id: creditorId,
+          counterparty_id: debtorId,
+          amount_minor: Math.round(parseFloat(amount) * 100),
+          currency,
+          due_date: dueDate?.toISOString().split('T')[0], // YYYY-MM-DD format
+          description: description || null,
+          status: 'active',
+        })
+
+      if (debtError) throw debtError
+
+      setIsSubmitted(true)
+
+      // Redirect to dashboard after showing success message
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 4000)
+    } catch (err: any) {
+      setError(err.message || "Failed to create debt")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (isSubmitted) {
@@ -66,6 +104,12 @@ export function CreateDebtForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md">
+          {error}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="debtorName">Debtor Name *</Label>

@@ -6,9 +6,72 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, User } from "lucide-react"
 import Link from "next/link"
 import { useAppStore } from "@/lib/store"
+import { supabase } from "@/lib/supabase-client"
+import { useEffect, useState } from "react"
+
+interface Debt {
+  id: string
+  creditorName: string
+  debtorName: string
+  total: number
+  paid: number
+  remaining: number
+  status: string
+  dueDate: string
+  currency: string
+  description?: string
+  payments: any[]
+  createdDate: string
+}
 
 export function DebtHistory() {
-  const { debts, viewMode, currentUser } = useAppStore()
+  const { viewMode, currentUser } = useAppStore()
+  const [debts, setDebts] = useState<Debt[]>([])
+
+  useEffect(() => {
+    const fetchDebts = async () => {
+      const { data, error } = await supabase
+        .from('debts')
+        .select(`
+          *,
+          creditor:profiles!debts_creditor_id_fkey(name),
+          counterparty:profiles!debts_counterparty_id_fkey(name),
+          payments(*)
+        `)
+
+      if (error) {
+        console.error('Error fetching debts:', error)
+        return
+      }
+
+      const mappedDebts = data.map((debt: any) => {
+        const total = debt.amount_minor / 100
+        const paid = debt.payments
+          .filter((p: any) => p.status === 'confirmed')
+          .reduce((sum: number, p: any) => sum + p.amount_minor / 100, 0)
+        const remaining = total - paid
+
+        return {
+          id: debt.id,
+          creditorName: debt.creditor?.name || 'Unknown',
+          debtorName: debt.counterparty?.name || 'Unknown',
+          total,
+          paid,
+          remaining,
+          status: debt.status,
+          dueDate: debt.due_date || '',
+          currency: debt.currency,
+          description: debt.description,
+          payments: debt.payments,
+          createdDate: debt.created_at,
+        }
+      })
+
+      setDebts(mappedDebts)
+    }
+
+    fetchDebts()
+  }, [])
 
   const completedDebts = debts.filter((debt) => {
     const isCompleted = debt.status === "completed"

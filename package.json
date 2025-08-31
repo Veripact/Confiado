@@ -38,6 +38,8 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "latest",
     "@remix-run/react": "latest",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.56.1",
     "@sveltejs/kit": "latest",
     "@tanstack/react-query": "^5.84.1",
     "@vercel/analytics": "latest",
