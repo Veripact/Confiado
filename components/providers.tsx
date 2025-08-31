@@ -25,7 +25,7 @@ const chainConfig = {
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
-});
+}) as any;
 
 const web3AuthContextConfig: Web3AuthContextConfig = {
   web3AuthOptions: {
@@ -41,6 +41,7 @@ const web3AuthContextConfig: Web3AuthContextConfig = {
       defaultLanguage: "en",
       loginMethodsOrder: ["google", "facebook", "twitter", "discord", "twitch"],
     },
+    enableLogging: true,
   },
 };
 

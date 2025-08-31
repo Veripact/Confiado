@@ -16,7 +16,7 @@ import Link from "next/link"
 import { useAppStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
 import { useWeb3AuthUser, useWeb3AuthDisconnect } from "@web3auth/modal/react"
-import { WalletBalance } from "@/components/wallet/wallet-balance"
+import { WalletInfo } from "@/components/wallet/wallet-info"
 
 export function DashboardHeader() {
   const { viewMode, setViewMode } = useAppStore()
@@ -60,7 +60,7 @@ export function DashboardHeader() {
           </div>
 
           <div className="flex items-center gap-4">
-            <WalletBalance />
+            <WalletInfo />
             {viewMode === "creditor" && (
               <Button asChild size="sm" className="hidden sm:flex">
                 <Link href="/debt/create">
@@ -89,12 +89,6 @@ export function DashboardHeader() {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{userInfo?.name || "Usuario"}</p>
                     <p className="text-xs leading-none text-muted-foreground">{userInfo?.email}</p>
-                    {userInfo?.dappShare && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Wallet className="w-3 h-3" />
-                        <span className="font-mono">{`${userInfo.dappShare.slice(0, 6)}...${userInfo.dappShare.slice(-4)}`}</span>
-                      </div>
-                    )}
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

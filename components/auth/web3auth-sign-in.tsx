@@ -17,7 +17,7 @@ const Web3AuthSignIn: React.FC<{ className?: string }> = ({ className = "" }) =>
       className={`w-full ${className}`}
       disabled={loading}
     >
-      {loading ? "Conectando..." : "Conectar con Web3Auth"}
+{loading ? "Connecting..." : "Connect with Web3Auth"}
     </Button>
   );
 };
